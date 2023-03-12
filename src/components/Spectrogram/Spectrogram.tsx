@@ -3,7 +3,7 @@
 // 2. We render the spectrogram for the audio file
 // 3. We put a playback button on top of the spectrogram
 
-interface SpectrogramProps {
+type SpectrogramProps = {
   updateSound: boolean;
 }
 

@@ -2,7 +2,7 @@
 // 1. We get two Spectogram components.
 import { Spectrogram } from "../Spectrogram/Spectrogram";
 
-interface SpectrogramViewProps {
+type SpectrogramViewProps = {
   updateSound: boolean;
 }
 
