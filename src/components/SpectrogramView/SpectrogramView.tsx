@@ -2,6 +2,10 @@
 // 1. We get two Spectogram components.
 import { Spectrogram } from "../Spectrogram/Spectrogram";
 
-export function SpectrogramView() {
-  return <></>;
+interface SpectrogramViewProps {
+  updateSound: boolean;
+}
+
+export function SpectrogramView({ updateSound }: SpectrogramViewProps) {
+  return <Spectrogram updateSound={updateSound}></Spectrogram>;
 }

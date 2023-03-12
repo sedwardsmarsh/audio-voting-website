@@ -2,16 +2,18 @@
 
 import { VoteButton } from "@/components/VoteButton";
 import { SpectrogramView } from "@/components/SpectrogramView";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Vote() {
-  const [score, setScore] = useState(0);
-  const increaseScore = () => setScore(score + 1);
+  const [updateSound, setUpdateSound] = useState(false);
+  const handleToggle = () => {
+    setUpdateSound((updateSound) => !updateSound);
+  };
 
   return (
     <div>
-      <p>Your score is {score}</p>
-      <button onClick={increaseScore}>+</button>
+      <SpectrogramView updateSound={updateSound}></SpectrogramView>
+      <button onClick={handleToggle}>new button</button>
     </div>
   );
 }
