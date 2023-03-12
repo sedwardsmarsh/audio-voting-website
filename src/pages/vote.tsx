@@ -2,7 +2,16 @@
 
 import { VoteButton } from "@/components/VoteButton";
 import { SpectrogramView } from "@/components/SpectrogramView";
+import { useState } from "react";
 
 export default function Vote() {
-  return "hello";
+  const [score, setScore] = useState(0);
+  const increaseScore = () => setScore(score + 1);
+
+  return (
+    <div>
+      <p>Your score is {score}</p>
+      <button onClick={increaseScore}>+</button>
+    </div>
+  );
 }
