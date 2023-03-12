@@ -7,5 +7,10 @@ type SpectrogramViewProps = {
 }
 
 export function SpectrogramView({ updateSound }: SpectrogramViewProps) {
-  return <Spectrogram updateSound={updateSound}></Spectrogram>;
+  return (
+    <div>
+      <Spectrogram updateSound={updateSound}></Spectrogram>
+      <Spectrogram updateSound={updateSound}></Spectrogram>
+    </div>
+  );
 }
