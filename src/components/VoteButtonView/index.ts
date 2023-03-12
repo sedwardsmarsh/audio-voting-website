@@ -1,0 +1,1 @@
+export {VoteButtonView} from './VoteButtonView';
