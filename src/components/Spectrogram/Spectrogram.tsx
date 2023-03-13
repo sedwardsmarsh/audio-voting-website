@@ -3,12 +3,10 @@
 // 2. We render the spectrogram for the audio file
 // 3. We put a playback button on top of the spectrogram
 
-type SpectrogramProps = {
-  updateSound: boolean;
-}
+import { Sound } from "@/pages/vote";
 
-export function Spectrogram({ updateSound }: SpectrogramProps) {
-  console.log("Spectrogram: ", updateSound);
+export function Spectrogram(props: { sound: Sound }) {
+  console.log("Spectrogram: ", props.sound);
 
-  return <p>updateSound: {updateSound ? "true" : "false"}</p>;
+  return <p>updateSound: {props.sound}</p>;
 }
