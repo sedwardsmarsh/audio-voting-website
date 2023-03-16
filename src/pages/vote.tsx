@@ -10,7 +10,7 @@ import {
   useCallback,
 } from "react";
 
-const sound_data = ["laugh", "fart", "burp", "clap", "whistle", "bang"];
+const sound_data = ["a", "b", "c", "d", "e", "f"];
 
 export type Sound = string | undefined;
 type Sounds = [Sound, Sound];
@@ -18,27 +18,40 @@ const SoundContext = createContext<Sounds>([undefined, undefined]);
 export const useSoundContext = () => useContext(SoundContext);
 
 export default function Vote() {
-  // currently available SOUNDS
-  const [sounds, setSounds] = useState<Sounds>([undefined, undefined]);
+  // chosen sounds
+  const [chosenSounds, setChosenSounds] = useState<Sounds>([
+    undefined,
+    undefined,
+  ]);
   // sounds remaining in the database
-  const [availableSounds, setAvailableSounds] = useState<Sound[]>(sound_data);
+  const [remainingSounds, setRemainingSounds] = useState<Sound[]>(sound_data);
 
   // useCallback is called, which memoizes the internal callback fn
-  // whenever inputs in the dependency array mutate (availableSounds, sounds)
+  // whenever inputs in the dependency array mutate (remainingSounds, chosenSounds)
   const shuffleSounds = useCallback(
+    // obtain the currently available sounds from remainingSounds
+    // as opposed to indexing remainingSounds directly. What we're doing here
+    // is *like* a read lock on remainingSounds.
     (removePrevSounds: boolean = true) => {
-      let curSounds = availableSounds.filter(
-        (sound) => sound != sounds[0] && sound != sounds[1]
+      let currentSounds = remainingSounds.filter(
+        (sound) => sound != chosenSounds[0] && sound != chosenSounds[1]
       );
-      const rand_idx_1 = Math.floor(Math.random() * curSounds.length);
-      let sound_1 = curSounds[rand_idx_1];
-      const rand_idx_2 = Math.floor(Math.random() * (curSounds.length - 1));
-      let sound_2 = curSounds.filter((sound) => sound != sound_1)[rand_idx_2];
-      setSounds([sound_1, sound_2]);
+      // randomly choose two sounds from the remaining sounds.
+      const sound_1_idx = Math.floor(Math.random() * currentSounds.length);
+      let sound_1 = currentSounds[sound_1_idx];
+      const sound_2_idx = Math.floor(
+        Math.random() * (currentSounds.length - 1)
+      );
+      let sound_2 = currentSounds.filter((sound) => sound != sound_1)[
+        sound_2_idx
+      ];
+      // setting the two selected chosenSounds into state
+      setChosenSounds([sound_1, sound_2]);
       if (!removePrevSounds) return;
-      setAvailableSounds(curSounds);
+      setRemainingSounds(currentSounds);
     },
-    [availableSounds, sounds]
+    // this callback is called whenever either of these state blobs mutate
+    [remainingSounds, chosenSounds]
   );
 
   // called during first render of component
@@ -47,7 +60,7 @@ export default function Vote() {
   }, []);
 
   return (
-    <SoundContext.Provider value={sounds}>
+    <SoundContext.Provider value={chosenSounds}>
       <div>
         <SpectrogramView />
         <button
