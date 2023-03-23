@@ -2,13 +2,18 @@
 // 1. We get two Spectogram components.
 import { Spectrogram } from "../Spectrogram/Spectrogram";
 import { useSoundContext } from "@/pages/vote";
+import { useSessionContext } from "@supabase/auth-helpers-react";
+import { useEffect } from "react";
 
 export function SpectrogramView() {
+  const supabaseContext = useSessionContext();
+  const supabaseClient = supabaseContext.supabaseClient;
+
   const sounds = useSoundContext();
   return (
     <div>
-      <Spectrogram sound={sounds[0]}/>
-      <Spectrogram sound={sounds[1]}/>
+      <Spectrogram sound={sounds[0]} />
+      <Spectrogram sound={sounds[1]} />
     </div>
   );
 }
