@@ -1,62 +1,65 @@
 // This component will maintain state that updates when either vote button is pressed. When either button is pressed, the tally for that sound will increment and the spectogram view will refresh.
-
 import { VoteButton } from "@/components/VoteButton";
 import { SpectrogramView } from "@/components/SpectrogramView";
+import { soundIdSupabaseResponse, freesoundPreviews } from "@/types/types";
 import {
   useState,
   useEffect,
   createContext,
   useContext,
   useCallback,
+  useMemo,
 } from "react";
 
-const sound_data = ["a", "b", "c", "d", "e", "f"];
+/**
+ * asynchronously fetches all the sound_id's from supabase as a string array.
+ * @return {Promise<string[]>} array of sound_id's.
+ */
+async function getAllSupabaseSoundIDs(): Promise<string[]> {
+  // get soundID blob from supabase
+  const sound_ids = await fetch("api/allSoundsRandomOrder");
+  const supabase_response: soundIdSupabaseResponse = await sound_ids.json();
 
-export type Sound = string | undefined;
-type Sounds = [Sound, Sound];
-const SoundContext = createContext<Sounds>([undefined, undefined]);
+  // separate soundID blob into individual sound id's
+  let soundIDs = [];
+  for (let i = 0; i < supabase_response["data"].length; i++) {
+    const sound_id = supabase_response["data"][i]["sound_id"];
+    soundIDs.push(sound_id);
+  }
+
+  return soundIDs;
+}
+
+// create sound context. this will store the pair of selected sounds.
+const SoundContext = createContext<[string, string] | undefined>(undefined);
 export const useSoundContext = () => useContext(SoundContext);
 
 export default function Vote() {
-  // chosen sounds
-  const [chosenSounds, setChosenSounds] = useState<Sounds>([
-    undefined,
-    undefined,
-  ]);
-  // sounds remaining in the database
-  const [remainingSounds, setRemainingSounds] = useState<Sound[]>(sound_data);
-
-  // useCallback is called, which memoizes the internal callback fn
-  // whenever inputs in the dependency array mutate (remainingSounds, chosenSounds)
-  const shuffleSounds = useCallback(
-    // obtain the currently available sounds from remainingSounds
-    // as opposed to indexing remainingSounds directly. What we're doing here
-    // is *like* a read lock on remainingSounds.
-    (removePrevSounds: boolean = true) => {
-      let currentSounds = remainingSounds.filter(
-        (sound) => sound != chosenSounds[0] && sound != chosenSounds[1]
-      );
-      // randomly choose two sounds from the remaining sounds.
-      const sound_1_idx = Math.floor(Math.random() * currentSounds.length);
-      let sound_1 = currentSounds[sound_1_idx];
-      const sound_2_idx = Math.floor(
-        Math.random() * (currentSounds.length - 1)
-      );
-      let sound_2 = currentSounds.filter((sound) => sound != sound_1)[
-        sound_2_idx
-      ];
-      // setting the two selected chosenSounds into state
-      setChosenSounds([sound_1, sound_2]);
-      if (!removePrevSounds) return;
-      setRemainingSounds(currentSounds);
-    },
-    // this callback is called whenever either of these state blobs mutate
-    [remainingSounds, chosenSounds]
+  // all sound IDs
+  const [allSoundIDs, setAllSoundIDs] = useState<string[] | undefined>();
+  // previously used sounds in the database
+  const [prevUsedSounds, setPrevUsedSounds] = useState<string[]>([]);
+  // available sounds, updated whenever allSoundIDs or prevUsedSounds updates
+  const availableSounds = useMemo(
+    () => allSoundIDs?.filter((id) => !prevUsedSounds.includes(id)),
+    [allSoundIDs, prevUsedSounds]
   );
+  // chosen sounds, the selected pair of sound ids. updated whenever
+  // availableSounds updates.
+  const chosenSounds: [string, string] | undefined = useMemo(() => {
+    if (availableSounds && availableSounds.length >= 2) {
+      return [availableSounds[0], availableSounds[1]];
+    }
+  }, [availableSounds]);
 
-  // called during first render of component
+  // synchronizing local state with fetched ids
+  // fetches during the initial render
   useEffect(() => {
-    shuffleSounds(false);
+    async function fetchSoundUrls() {
+      const freeSoundIDs = await getAllSupabaseSoundIDs();
+      setAllSoundIDs(freeSoundIDs);
+    }
+    fetchSoundUrls();
   }, []);
 
   return (
@@ -65,10 +68,13 @@ export default function Vote() {
         <SpectrogramView />
         <button
           onClick={() => {
-            shuffleSounds();
+            // TODO: handle vote mechanism
+            if (chosenSounds) {
+              setPrevUsedSounds((prev) => [...prev, ...chosenSounds]);
+            }
           }}
         >
-          new button
+          Vote!
         </button>
       </div>
     </SoundContext.Provider>

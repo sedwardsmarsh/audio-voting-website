@@ -21,9 +21,8 @@ export default function handler(
   });
   async function getData() {
     const { data, error } = await supabaseClient
-      .from("clotho_dataset")
-      .select("*")
-      .eq("sound_id", 121965);
+      .rpc("get_all_sound_links_shuffled")
+      .select("*");
     return data;
   }
   getData().then((data) => {

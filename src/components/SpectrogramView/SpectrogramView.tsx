@@ -4,11 +4,12 @@ import { Spectrogram } from "../Spectrogram/Spectrogram";
 import { useSoundContext } from "@/pages/vote";
 
 export function SpectrogramView() {
-  const sounds = useSoundContext();
+  const soundIDPair = useSoundContext();
+  if (soundIDPair == undefined) return null
   return (
     <div>
-      <Spectrogram sound={sounds[0]} />
-      <Spectrogram sound={sounds[1]} />
+      <Spectrogram sound_id={soundIDPair[0]} />
+      <Spectrogram sound_id={soundIDPair[1]} />
     </div>
   );
 }
