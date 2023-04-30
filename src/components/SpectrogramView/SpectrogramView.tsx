@@ -2,14 +2,27 @@
 // 1. We get two Spectogram components.
 import { Spectrogram } from "../Spectrogram/Spectrogram";
 import { useSoundContext } from "@/pages/vote";
+import { Canvas } from "@react-three/fiber";
 
 export function SpectrogramView() {
   const soundIDPair = useSoundContext();
-  if (soundIDPair == undefined) return null
+  if (soundIDPair == undefined) return null;
   return (
-    <div>
+    <Canvas
+      orthographic
+      camera={{
+        left: -3,
+        right: 3,
+        top: 2,
+        bottom: -2,
+        position: [0, 0, 10],
+        zoom: 100,
+      }}
+      style={{ width: "350px", height: "150px" }}
+    >
+      <color args={["#666666"]} attach={"background"} />
       <Spectrogram sound_id={soundIDPair[0]} />
       <Spectrogram sound_id={soundIDPair[1]} />
-    </div>
+    </Canvas>
   );
 }

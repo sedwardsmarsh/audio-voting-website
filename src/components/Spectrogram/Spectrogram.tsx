@@ -3,8 +3,9 @@
 // 2. We render the spectrogram for the audio file
 // 3. We put a playback button on top of the spectrogram
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { freesoundPreviews } from "@/types/types";
+import { Vector3 } from "@react-three/fiber";
 
 const freesoundKey = process.env.NEXT_PUBLIC_FREESOUND_API_KEY;
 
@@ -20,6 +21,27 @@ async function getPreviewUrl(sound_id: string): Promise<string> {
   const hq_mp3_preview = freesound_previews["previews"]["preview-hq-mp3"];
 
   return hq_mp3_preview;
+}
+
+function Sound(props: { previewUrl: string | undefined; position: Vector3 }) {
+  const ref = useRef<HTMLAudioElement>(null);
+  const source = useRef<HTMLSourceElement>(null);
+
+  // return (
+  //   <audio ref={ref} key={props.previewUrl} controls preload="metadata">
+  //     <source ref={source} src={props.previewUrl} type="audio/mpeg"></source>
+  //     Your browser does not support the audio tag.
+  //   </audio>
+  // );
+  return (
+    <group>
+      <audio></audio>
+      <mesh position={props.position}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial color={"red"} />
+      </mesh>
+    </group>
+  );
 }
 
 export function Spectrogram(props: { sound_id: string }) {
@@ -39,10 +61,5 @@ export function Spectrogram(props: { sound_id: string }) {
     console.log(previewUrl);
   }, [previewUrl]);
 
-  return (
-    <audio controls preload="metadata">
-      <source src={previewUrl} type="audio/mpeg"></source>
-      Your browser does not support the audio tag.
-    </audio>
-  );
+  return <Sound position={[0, 0, 0]} previewUrl={previewUrl} />;
 }
